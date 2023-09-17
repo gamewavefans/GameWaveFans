@@ -43,11 +43,15 @@ func setPixel(p []byte, c uint16) {
 //		return r, g, b, a
 //	}
 func getPixelValue(value uint16) (r, g, b, a uint8) {
-	g = uint8(math.Round(float64(value>>11&31) * (255.0 / 31.0)))
-	r = uint8(math.Round(float64(value>>6&31) * (255.0 / 31.0)))
-	b = uint8(math.Round(float64(value>>1&31) * (255.0 / 31.0)))
-	// TODO parse transparency
-	a = 0xFF
+	// TODO colors are broken
+	rRaw := value >> 10 & 31
+	r = uint8(math.Round(float64(rRaw)) * (255.0 / 31.0))
+	gRaw := value >> 5 & 31
+	g = uint8(math.Round(float64(gRaw) * (255.0 / 31.0)))
+	bRaw := value >> 0 & 31
+	b = uint8(math.Round(float64(bRaw) * (255.0 / 31.0)))
+
+	a = uint8(math.Round(float64(value>>15&1) * (255.0)))
 	return r, g, b, a
 }
 
@@ -73,7 +77,7 @@ func Decode(r io.Reader) (image.Image, error) {
 
 	pixelBuffer := make([]uint16, c.width*c.height)
 	for i := range pixelBuffer {
-		pixelBuffer[i] = binary.LittleEndian.Uint16(buffer[i*2 : (i*2)+2])
+		pixelBuffer[i] = binary.BigEndian.Uint16(buffer[i*2 : (i*2)+2])
 	}
 
 	img := image.NewRGBA(image.Rect(0, 0, int(c.width), int(c.height)))
