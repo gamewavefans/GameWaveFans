@@ -65,7 +65,6 @@ func main() {
 				failed = true
 			}
 		} else {
-			fmt.Printf("%s, %d", outputName, len(args))
 			if outputName == "" || len(args) > 1 {
 				outputName = strings.TrimSuffix(inputName, filepath.Ext(inputName)) + ".png"
 			}

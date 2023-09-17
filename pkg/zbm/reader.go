@@ -26,14 +26,6 @@ type config struct {
 	unknown8     uint32
 }
 
-func setPixel(p []byte, c uint16) {
-
-	p[0] = uint8(math.Round(float64(c>>10&31) * (255.0 / 31.0)))
-	p[1] = uint8(math.Round(float64(c>>5&31) * (255.0 / 31.0)))
-	p[2] = uint8(math.Round(float64(c&31) * (255.0 / 31.0)))
-	p[3] = 0xFF
-}
-
 //	func getPixelValue(value uint16) (r, g, b, a uint8) {
 //		r = uint8(math.Round(float64(value>>10&31) * (255.0 / 31.0)))
 //		g = uint8(math.Round(float64(value>>5&31) * (255.0 / 31.0)))
