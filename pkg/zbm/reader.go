@@ -47,6 +47,7 @@ func getPixelValue(value uint16) (r, g, b, a uint8) {
 	return r, g, b, a
 }
 
+// Decode reads zbm file and returns image.Image
 func Decode(r io.Reader) (image.Image, error) {
 	var c config
 	c.r = r
@@ -65,7 +66,10 @@ func Decode(r io.Reader) (image.Image, error) {
 	if len(buffer) != int(c.sizeUnpacked) {
 		return nil, FormatError(fmt.Sprintf("unpacked size mismatch: got %d, expected %d\n", len(buffer), c.sizeUnpacked))
 	}
-	zlibDecoder.Close()
+	err = zlibDecoder.Close()
+	if err != nil {
+		return nil, err
+	}
 
 	pixelBuffer := make([]uint16, c.width*c.height)
 	for i := range pixelBuffer {
