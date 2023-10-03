@@ -144,8 +144,7 @@ func unpackSound(inputName, outputName string) error {
 
 func writeWave(outputFile io.WriteSeeker, buffer *audio.IntBuffer) error {
 	var err error
-	// 44100Hz, 16bits , 2channels, no compression
-	enc := wav.NewEncoder(outputFile, 44100, 16, 2, 1)
+	enc := wav.NewEncoder(outputFile, buffer.Format.SampleRate, buffer.SourceBitDepth, buffer.Format.NumChannels, 1)
 	if errTmp := enc.Write(buffer); err != nil {
 		err = fmt.Errorf("could not write %s: %s", outputName, errTmp)
 	}
