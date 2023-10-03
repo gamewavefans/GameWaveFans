@@ -1,3 +1,4 @@
+// Package zbm helps interfacing with zbm files, un unpack and repack them
 package zbm
 
 // A FormatError reports that the input is not a valid Gamewave texture.

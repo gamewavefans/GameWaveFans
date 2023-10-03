@@ -1,8 +1,7 @@
 /*
-Pc_unpack converts Stunt GP textures to one of the more popular formats.
+zbm_unpack converts Gamewave .zbm images to one of the more popular formats.
 
-This program accepts PC, DC and PS2 textures.
-It can output jpg or png files.
+This program can output jpg or png files.
 */
 package main
 
@@ -142,8 +141,6 @@ func unpackTexture(inputName, outputName string) error {
 		err = jpeg.Encode(outputFile, img, &o)
 	case ".png":
 		err = png.Encode(outputFile, img)
-	case ".zbm":
-		err = zbm.Encode(outputFile, img)
 	default:
 		err = fmt.Errorf("unknown output format: %s", ext)
 	}
