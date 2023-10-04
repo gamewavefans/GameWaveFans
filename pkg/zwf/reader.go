@@ -14,7 +14,7 @@ import (
 func Decode(r io.ReadSeeker) (*audio.IntBuffer, error) {
 	format := &audio.Format{
 		NumChannels: 2,
-		SampleRate:  44100,
+		SampleRate:  22050,
 	}
 
 	// read samples count
