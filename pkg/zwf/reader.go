@@ -8,6 +8,7 @@ import (
 	"io"
 
 	"github.com/go-audio/audio"
+	"github.com/namgo/GameWaveFans/pkg/common"
 )
 
 // Decode reads .zwf file and returns raw audio data
@@ -18,13 +19,13 @@ func Decode(r io.ReadSeeker) (*audio.IntBuffer, error) {
 	}
 
 	// read samples count
-	samplesCount, err := readHeaderUint32(r, 4)
+	samplesCount, err := common.ReadUint32(r, 4)
 	if err != nil {
 		return nil, err
 	}
 
 	// read packed data  size
-	// packedSize, err := readHeaderUint32(r, 0xC)
+	// packedSize, err := common.ReadUint32(r, 0xC)
 	// if err != nil {
 	// 	return nil, err
 	// }
@@ -57,20 +58,4 @@ func Decode(r io.ReadSeeker) (*audio.IntBuffer, error) {
 	buf := &audio.IntBuffer{Format: format, SourceBitDepth: 16, Data: samples}
 
 	return buf, nil
-}
-
-// TODO move that to common library for zwf/zbm?
-func readHeaderUint32(r io.ReadSeeker, offset int64) (uint32, error) {
-	if _, err := r.Seek(offset, 0); err != nil {
-		return 0, err
-	}
-
-	dataBytes := make([]byte, 4)
-	if _, err := r.Read(dataBytes); err != nil {
-		return 0, err
-	}
-
-	headerInt := binary.LittleEndian.Uint32(dataBytes)
-
-	return headerInt, nil
 }

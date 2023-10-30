@@ -72,7 +72,9 @@ func Decode(r io.Reader) (image.Image, error) {
 	}
 
 	pixelBuffer := make([]uint16, c.width*c.height)
-	for i := range pixelBuffer {
+	// TODO why does it look better that way?
+	for i := 0; i < len(pixelBuffer)-1; i += 2 {
+		pixelBuffer[i+1] = binary.BigEndian.Uint16(buffer[i*2 : (i*2)+2])
 		pixelBuffer[i] = binary.BigEndian.Uint16(buffer[i*2 : (i*2)+2])
 	}
 
