@@ -15,6 +15,7 @@ import (
 	"path/filepath"
 	"strings"
 
+	"github.com/iafan/cwalk"
 	"github.com/namgo/GameWaveFans/pkg/zbm"
 	"github.com/spf13/pflag"
 )
@@ -57,10 +58,13 @@ func main() {
 			failed = true
 		}
 		if f.IsDir() {
-			walkFunc := getWalkFunc(&failed)
-			err := filepath.Walk(inputName, walkFunc)
+			walkFunc := getWalkFunc(inputName)
+			err := cwalk.Walk(inputName, walkFunc)
 			if err != nil {
-				fmt.Printf("Failed to unpack dir %s: %s", inputName, err)
+				fmt.Printf("Failed to unpack dir %s: %s\n", inputName, err)
+				// for _, errors := range err.(cwalk.WalkerError).ErrorList {
+				// 	fmt.Println(errors)
+				// }
 				failed = true
 			}
 		} else {
@@ -79,16 +83,12 @@ func main() {
 	}
 }
 
-func getWalkFunc(failed *bool) filepath.WalkFunc {
+func getWalkFunc(basePath string) filepath.WalkFunc {
 	return func(path string, info fs.FileInfo, err error) error {
 		if !info.IsDir() {
 			if strings.ToLower(filepath.Ext(path)) == ".zbm" {
-				outputName = strings.TrimSuffix(path, filepath.Ext(path)) + ".png"
-				err := unpackTexture(path, outputName)
-				if err != nil {
-					fail := true
-					failed = &fail
-				}
+				outputName = filepath.Join(basePath, strings.TrimSuffix(path, filepath.Ext(path))+".png")
+				return unpackTexture(filepath.Join(basePath, path), outputName)
 			}
 		}
 		return nil

@@ -26,25 +26,27 @@ type config struct {
 	unknown8     uint32
 }
 
-//	func getPixelValue(value uint16) (r, g, b, a uint8) {
-//		r = uint8(math.Round(float64(value>>10&31) * (255.0 / 31.0)))
-//		g = uint8(math.Round(float64(value>>5&31) * (255.0 / 31.0)))
-//		b = uint8(math.Round(float64(value&31) * (255.0 / 31.0)))
-//		// TODO parse transparency
-//		a = 0xFF
-//		return r, g, b, a
-//	}
 func getPixelValue(value uint16) (r, g, b, a uint8) {
-	// TODO colors are broken
-	rRaw := value >> 10 & 31
-	r = uint8(math.Round(float64(rRaw)) * (255.0 / 31.0))
-	gRaw := value >> 5 & 31
-	g = uint8(math.Round(float64(gRaw) * (255.0 / 31.0)))
-	bRaw := value >> 0 & 31
-	b = uint8(math.Round(float64(bRaw) * (255.0 / 31.0)))
+	// most images store pixels in big endian, 4633
+	firstBits := 3
+	secondBits := 3
+	thirdBits := 6
+	fourthBits := 4
 
-	a = uint8(math.Round(float64(value>>15&1) * (255.0)))
-	return r, g, b, a
+	// 1st-4th, from right to left
+	// 4, 3, 2, 1: a, ?, ?, ?
+	first := value & uint16(math.Pow(2, float64(firstBits))-1)
+	second := (value >> firstBits) & uint16(math.Pow(2, float64(secondBits))-1)
+	third := (value >> (firstBits + secondBits)) & uint16(math.Pow(2, float64(thirdBits))-1)
+	fourth := (value >> (firstBits + secondBits + thirdBits)) & uint16(math.Pow(2, float64(fourthBits))-1)
+
+	firstValue := uint8(math.Round(float64(first) * (255.0 / (math.Pow(2, float64(firstBits)) - 1))))
+	secondValue := uint8(math.Round(float64(second) * (255.0 / (math.Pow(2, float64(secondBits)) - 1))))
+	thirdValue := uint8(math.Round(float64(third) * (255.0 / (math.Pow(2, float64(thirdBits)) - 1))))
+	fourthValue := uint8(math.Round(float64(fourth) * (255.0 / (math.Pow(2, float64(fourthBits)) - 1))))
+
+	return firstValue, thirdValue, secondValue, fourthValue
+	//return firstValue, secondValue, thirdValue, fourthValue
 }
 
 // Decode reads zbm file and returns image.Image
@@ -72,6 +74,8 @@ func Decode(r io.Reader) (image.Image, error) {
 	}
 
 	pixelBuffer := make([]uint16, c.width*c.height)
+
+	// swap every two pixels
 	// TODO why does it look better that way?
 	for i := 0; i < len(pixelBuffer)-1; i += 2 {
 		pixelBuffer[i+1] = binary.BigEndian.Uint16(buffer[i*2 : (i*2)+2])
