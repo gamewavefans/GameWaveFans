@@ -26,7 +26,7 @@ type config struct {
 	unknown8     uint32
 }
 
-func getPixelValue(value uint16) (r, g, b, a uint8) {
+func getPixelValue(value uint16) (uint8, uint8, uint8, uint8) {
 	// most images store pixels in big endian, 4633
 	firstBits := 3
 	secondBits := 3
@@ -45,7 +45,7 @@ func getPixelValue(value uint16) (r, g, b, a uint8) {
 	thirdValue := uint8(math.Round(float64(third) * (255.0 / (math.Pow(2, float64(thirdBits)) - 1))))
 	fourthValue := uint8(math.Round(float64(fourth) * (255.0 / (math.Pow(2, float64(fourthBits)) - 1))))
 
-	return firstValue, thirdValue, secondValue, fourthValue
+	return firstValue, secondValue, thirdValue, fourthValue
 	//return firstValue, secondValue, thirdValue, fourthValue
 }
 
