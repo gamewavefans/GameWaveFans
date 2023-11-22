@@ -7,7 +7,6 @@ import (
 	"image"
 	"image/color"
 	"io"
-	"math"
 )
 
 type config struct {
@@ -28,25 +27,15 @@ type config struct {
 
 func getPixelValue(value uint16) (uint8, uint8, uint8, uint8) {
 	// most images store pixels in big endian, 4633
-	firstBits := 3
-	secondBits := 3
-	thirdBits := 6
-	fourthBits := 4
 
-	// 1st-4th, from right to left
-	// 4, 3, 2, 1: a, ?, ?, ?
-	first := value & uint16(math.Pow(2, float64(firstBits))-1)
-	second := (value >> firstBits) & uint16(math.Pow(2, float64(secondBits))-1)
-	third := (value >> (firstBits + secondBits)) & uint16(math.Pow(2, float64(thirdBits))-1)
-	fourth := (value >> (firstBits + secondBits + thirdBits)) & uint16(math.Pow(2, float64(fourthBits))-1)
+	// values are shifted and multiplied for better color mapping:
+	// https://reshax.com/topic/265-gamewave-texture-zbm-format/#comment-856
+	cr := uint8(value&0x7) << 5          // 3 bits
+	cb := uint8((value>>3)&0x7) << 5     // 3 bits
+	y := uint8((value>>6)&0x3F) << 2     // 6 bits
+	alpha := uint8((value>>12)&0xF) * 17 // 4 bits
 
-	firstValue := uint8(math.Round(float64(first) * (255.0 / (math.Pow(2, float64(firstBits)) - 1))))
-	secondValue := uint8(math.Round(float64(second) * (255.0 / (math.Pow(2, float64(secondBits)) - 1))))
-	thirdValue := uint8(math.Round(float64(third) * (255.0 / (math.Pow(2, float64(thirdBits)) - 1))))
-	fourthValue := uint8(math.Round(float64(fourth) * (255.0 / (math.Pow(2, float64(fourthBits)) - 1))))
-
-	return firstValue, secondValue, thirdValue, fourthValue
-	//return firstValue, secondValue, thirdValue, fourthValue
+	return cr, cb, y, alpha
 }
 
 // Decode reads zbm file and returns image.Image
@@ -75,20 +64,20 @@ func Decode(r io.Reader) (image.Image, error) {
 
 	pixelBuffer := make([]uint16, c.width*c.height)
 
-	// swap every two pixels
-	// TODO why does it look better that way?
+	// swap every two pixels, endianness changes a bit
 	for i := 0; i < len(pixelBuffer)-1; i += 2 {
 		pixelBuffer[i+1] = binary.BigEndian.Uint16(buffer[i*2 : (i*2)+2])
-		pixelBuffer[i] = binary.BigEndian.Uint16(buffer[i*2 : (i*2)+2])
+		pixelBuffer[i] = binary.BigEndian.Uint16(buffer[(i+1)*2 : ((i+1)*2)+2])
 	}
 
 	img := image.NewRGBA(image.Rect(0, 0, int(c.width), int(c.height)))
-	//pixels := img.Pix[0 : int(c.width)*int(c.height)*4]
+
 	for i := 0; i < int(c.width*c.height); i++ {
-		r, g, b, a := getPixelValue(pixelBuffer[i])
-		img.Pix[4*i] = r
+		cb, cr, y, a := getPixelValue(pixelBuffer[i])
+		r, g, b := color.YCbCrToRGB(y, cb, cr)
+		img.Pix[4*i] = b
 		img.Pix[(4*i)+1] = g
-		img.Pix[(4*i)+2] = b
+		img.Pix[(4*i)+2] = r
 		img.Pix[(4*i)+3] = a
 	}
 	return img, nil
