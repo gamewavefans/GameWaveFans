@@ -73,11 +73,11 @@ func Decode(r io.Reader) (image.Image, error) {
 	img := image.NewRGBA(image.Rect(0, 0, int(c.width), int(c.height)))
 
 	for i := 0; i < int(c.width*c.height); i++ {
-		cb, cr, y, a := getPixelValue(pixelBuffer[i])
+		cr, cb, y, a := getPixelValue(pixelBuffer[i])
 		r, g, b := color.YCbCrToRGB(y, cb, cr)
-		img.Pix[4*i] = b
+		img.Pix[4*i] = r
 		img.Pix[(4*i)+1] = g
-		img.Pix[(4*i)+2] = r
+		img.Pix[(4*i)+2] = b
 		img.Pix[(4*i)+3] = a
 	}
 	return img, nil
