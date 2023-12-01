@@ -7,6 +7,7 @@ import (
 	"image"
 	"image/color"
 	"io"
+	"math"
 )
 
 type config struct {
@@ -36,6 +37,10 @@ func getPixelValue(value uint16) (uint8, uint8, uint8, uint8) {
 	alpha := uint8((value>>12)&0xF) * 17 // 4 bits
 
 	return cr, cb, y, alpha
+}
+
+func clampUint8(value int32) uint8 {
+	return uint8(math.Max(math.Min(float64(value), 255), 0))
 }
 
 // Decode reads zbm file and returns image.Image
@@ -70,11 +75,18 @@ func Decode(r io.Reader) (image.Image, error) {
 		pixelBuffer[i] = binary.BigEndian.Uint16(buffer[(i+1)*2 : ((i+1)*2)+2])
 	}
 
-	img := image.NewRGBA(image.Rect(0, 0, int(c.width), int(c.height)))
+	img := image.NewNRGBA(image.Rect(0, 0, int(c.width), int(c.height)))
 
 	for i := 0; i < int(c.width*c.height); i++ {
 		cr, cb, y, a := getPixelValue(pixelBuffer[i])
-		r, g, b := color.YCbCrToRGB(y, cb, cr)
+
+		// convert YCrCb colors to RGB with clamping to avoid overflows when converting to uint8
+		cb1 := int32(cb) - 128
+		cr1 := int32(cr) - 128
+		r := clampUint8(int32(y) + (int32(45*cr1) / 32))
+		g := clampUint8(int32(y) - (int32(11*cb1+23*cr1) / 32))
+		b := clampUint8(int32(y) + (int32(113*cb1) / 64))
+
 		img.Pix[4*i] = r
 		img.Pix[(4*i)+1] = g
 		img.Pix[(4*i)+2] = b
