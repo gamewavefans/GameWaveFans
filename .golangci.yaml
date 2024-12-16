@@ -8,7 +8,7 @@ output:
 linters:
   enable:
     - unused
-    - exportloopref
+    - copyloopvar
     - errcheck
     - gosimple
     - govet
@@ -16,8 +16,9 @@ linters:
     - misspell
     - staticcheck
     - typecheck
-    - unused
+    - unparam
     - revive
+    - gofmt
 issues:
   # To list all excluded by default patterns execute `golangci-lint run --help`.
   exclude-use-default: false
