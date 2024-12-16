@@ -84,7 +84,7 @@ func main() {
 }
 
 func getWalkFunc(basePath string) filepath.WalkFunc {
-	return func(path string, info fs.FileInfo, err error) error {
+	return func(path string, info fs.FileInfo, _ error) error {
 		if !info.IsDir() {
 			if strings.ToLower(filepath.Ext(path)) == ".zbm" {
 				outputName = filepath.Join(basePath, strings.TrimSuffix(path, filepath.Ext(path))+".png")

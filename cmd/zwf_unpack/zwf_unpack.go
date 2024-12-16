@@ -83,7 +83,7 @@ func main() {
 }
 
 func getWalkFunc(failed *bool) filepath.WalkFunc {
-	return func(path string, info fs.FileInfo, err error) error {
+	return func(path string, info fs.FileInfo, _ error) error {
 		if !info.IsDir() {
 			if strings.ToLower(filepath.Ext(path)) == ".zwf" {
 				outputName = strings.TrimSuffix(path, filepath.Ext(path)) + ".wav"
