@@ -145,10 +145,10 @@ func unpackSound(inputName, outputName string) error {
 func writeWave(outputFile io.WriteSeeker, buffer *audio.IntBuffer) error {
 	var err error
 	enc := wav.NewEncoder(outputFile, buffer.Format.SampleRate, buffer.SourceBitDepth, buffer.Format.NumChannels, 1)
-	if errTmp := enc.Write(buffer); err != nil {
+	if errTmp := enc.Write(buffer); errTmp != nil {
 		err = fmt.Errorf("could not write %s: %s", outputName, errTmp)
 	}
-	if errTmp := enc.Close(); err != nil {
+	if errTmp := enc.Close(); errTmp != nil {
 		err = fmt.Errorf("could not close wav encoder: %s", errTmp)
 	}
 	return err
