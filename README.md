@@ -13,7 +13,3 @@ Tis repository contains an array of tools, available for download at [https://gi
 - zwf_unpack - can unpack .zwf audio files, and whole directories recursively
 - zbm_unpack - can unpack .zbm image files, and whole directories recursively
 - zbc_unpack - can unpack .zbc bytecode files, and whole directories recursively
-
-# Building
-
-To build tools you can run `make` to build tools just for your platform, or any of these make targets: `build_all`, `build_linux_32`, `build_linux_64`, `build_windows_32`, `build_windows_64`.
