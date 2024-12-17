@@ -1,4 +1,4 @@
-name: Release
+name: Build
 
 on:
   push:
@@ -22,7 +22,13 @@ jobs:
       - name: Create a release
         uses: goreleaser/goreleaser-action@v6
         with:
-          args: release --clean --draft  --config .goreleaser-nightly.yaml --release-header "Continuous integration build"
+          args: release --clean --snapshot
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          GORELEASER_CURRENT_TAG: v0.0.0-nightly
+      - name: save artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          path: |
+            dist/*.tar.xz
+            dist/*.zip
+            dist/*checksums.txt
