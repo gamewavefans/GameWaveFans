@@ -22,7 +22,7 @@ jobs:
       - name: Create a release
         uses: goreleaser/goreleaser-action@v6
         with:
-          args: release --clean --draft  --config .goreleaser-nightly.yml --release-header "Continuous integration build"
+          args: release --clean --draft  --config .goreleaser-nightly.yaml --release-header "Continuous integration build"
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           GORELEASER_CURRENT_TAG: v0.0.0-nightly
