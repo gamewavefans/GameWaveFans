@@ -6,7 +6,7 @@ To build tools you can run `make` to build tools just for your platform, or any 
 
 ## Continuous Integration
 
-After each commit, a release named `0.0.0-nightly` is updated with the latest changes in the code.
+After each commit, binaries are build and stored in a Github Action artifacts.
 
 ## Releases
 
