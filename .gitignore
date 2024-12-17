@@ -28,3 +28,5 @@
 *.zbc
 # raw GIMP files
 *.data
+
+dist/
