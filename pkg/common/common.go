@@ -2,6 +2,9 @@
 package common
 
 import (
+	"bufio"
+	"bytes"
+	"compress/zlib"
 	"encoding/binary"
 	"io"
 )
@@ -29,4 +32,62 @@ func ReadBytes(r io.ReadSeeker, offset int64, length int) ([]byte, error) {
 		return []byte{}, err
 	}
 	return dataBytes, nil
+}
+
+// ReadZlib reads Zlib packed data from reader until EOF
+func ReadZlib(r io.Reader) ([]byte, error) {
+	zlibDecoder, err := zlib.NewReader(r)
+	if err != nil {
+		return nil, err
+	}
+	buffer, err := io.ReadAll(zlibDecoder)
+	if err != nil {
+		return nil, err
+	}
+	err = zlibDecoder.Close()
+	if err != nil {
+		return nil, err
+	}
+	return buffer, nil
+}
+
+// ReadZlibFromBuffer unpakcs Zlib data from a slice
+func ReadZlibFromBuffer(data []byte) ([]byte, error) {
+	buf := bytes.NewBuffer(data)
+	r := bufio.NewReader(buf)
+	return ReadZlib(r)
+}
+
+// WriteZlib writes Zlib-packed data to a writer, and return
+func WriteZlib(data []byte, w io.Writer) (int, error) {
+	zlibEncoder, err := zlib.NewWriterLevel(w, zlib.BestCompression)
+	if err != nil {
+		return 0, err
+	}
+
+	n, err := zlibEncoder.Write(data)
+	if err != nil {
+		return n, err
+	}
+
+	err = zlibEncoder.Close()
+	if err != nil {
+		return 0, err
+	}
+	return n, err
+}
+
+// WriteZlibToBuffer packs data with Zlib to a slice
+func WriteZlibToBuffer(data []byte) ([]byte, error) {
+	buf := bytes.Buffer{}
+	w := bufio.NewWriter(&buf)
+	_, err := WriteZlib(data, w)
+	if err != nil {
+		return nil, err
+	}
+	err = w.Flush()
+	if err != nil {
+		return nil, err
+	}
+	return buf.Bytes(), nil
 }

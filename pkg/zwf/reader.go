@@ -3,7 +3,6 @@
 package zwf
 
 import (
-	"compress/zlib"
 	"encoding/binary"
 	"io"
 
@@ -35,15 +34,7 @@ func Decode(r io.ReadSeeker) (*audio.IntBuffer, error) {
 		return nil, err
 	}
 
-	zlibDecoder, err := zlib.NewReader(r)
-	if err != nil {
-		return nil, err
-	}
-	buffer, err := io.ReadAll(zlibDecoder)
-	if err != nil {
-		return nil, err
-	}
-	err = zlibDecoder.Close()
+	buffer, err := common.ReadZlib(r)
 	if err != nil {
 		return nil, err
 	}
