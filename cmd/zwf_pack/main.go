@@ -29,6 +29,8 @@ func parseFlags() {
 
 func usage() {
 	fmt.Println("Packs audio to .zwf format used by Gamewave console")
+	fmt.Println("Expects input files to be .wav, signed 16bit PCM, Big Endian 22050HZ stereo.")
+	fmt.Println("*Should* work with mono and different bit depth")
 	fmt.Println("Flags:")
 	pflag.PrintDefaults()
 }
