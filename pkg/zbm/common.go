@@ -7,5 +7,5 @@ type FormatError string
 func (e FormatError) Error() string { return "gamewave zbm error:" + string(e) }
 
 // FormatName is the name of the registered texture format
-const FormatName = "Gamewave texture"
+const FormatName = "zbm"
 const textureHeader = ""

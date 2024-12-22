@@ -1,13 +1,14 @@
 package zbm
 
 import (
-	"compress/zlib"
 	"encoding/binary"
 	"fmt"
 	"image"
 	"image/color"
 	"io"
 	"math"
+
+	"github.com/namgo/GameWaveFans/pkg/common"
 )
 
 type config struct {
@@ -51,20 +52,12 @@ func Decode(r io.Reader) (image.Image, error) {
 		return nil, err
 	}
 
-	zlibDecoder, err := zlib.NewReader(c.r)
-	if err != nil {
-		return nil, err
-	}
-	buffer, err := io.ReadAll(zlibDecoder)
+	buffer, err := common.ReadZlib(c.r)
 	if err != nil {
 		return nil, err
 	}
 	if len(buffer) != int(c.sizeUnpacked) {
 		return nil, FormatError(fmt.Sprintf("unpacked size mismatch: got %d, expected %d\n", len(buffer), c.sizeUnpacked))
-	}
-	err = zlibDecoder.Close()
-	if err != nil {
-		return nil, err
 	}
 
 	pixelBuffer := make([]uint16, c.width*c.height)

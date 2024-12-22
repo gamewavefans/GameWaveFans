@@ -1,7 +1,6 @@
 package zbc
 
 import (
-	"compress/zlib"
 	"fmt"
 	"io"
 	"reflect"
@@ -49,16 +48,7 @@ func Unpack(r io.ReadSeeker) ([]byte, error) {
 	if err != nil {
 		return []byte{}, err
 	}
-
-	zlibDecoder, err := zlib.NewReader(r)
-	if err != nil {
-		return nil, err
-	}
-	unpacked, err := io.ReadAll(zlibDecoder)
-	if err != nil {
-		return nil, err
-	}
-	err = zlibDecoder.Close()
+	unpacked, err := common.ReadZlib(r)
 	if err != nil {
 		return nil, err
 	}
