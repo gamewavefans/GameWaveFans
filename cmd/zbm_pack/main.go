@@ -1,15 +1,13 @@
 /*
-zbm_unpack converts Gamewave .zbm images to one of the more popular formats.
-
-This program can output jpg or png files.
+zbm_pack converts popular image formats to Gamewave .zbm images.
 */
 package main
 
 import (
 	"fmt"
 	"image"
-	"image/jpeg"
-	"image/png"
+	_ "image/jpeg"
+	_ "image/png"
 	"io/fs"
 	"os"
 	"path/filepath"
@@ -31,7 +29,7 @@ func parseFlags() {
 }
 
 func usage() {
-	fmt.Println("Unpacks image from .zbm texture format used by Gamewave console")
+	fmt.Println("Packs image to .zbm texture format used by Gamewave console")
 	fmt.Println("Flags:")
 	pflag.PrintDefaults()
 }
@@ -51,8 +49,6 @@ func main() {
 		os.Exit(1)
 	}
 
-	zbm.RegisterFormat()
-
 	for _, inputName := range args {
 		f, err := os.Stat(inputName)
 		if err != nil {
@@ -71,9 +67,9 @@ func main() {
 			}
 		} else {
 			if outputName == "" || len(args) > 1 {
-				outputName = strings.TrimSuffix(inputName, filepath.Ext(inputName)) + ".png"
+				outputName = strings.TrimSuffix(inputName, filepath.Ext(inputName)) + ".zbm"
 			}
-			err := unpackTexture(inputName, outputName)
+			err := packTexture(inputName, outputName)
 			if err != nil {
 				fmt.Printf("Failed to unpack %s: %s", inputName, err)
 				failed = true
@@ -88,31 +84,43 @@ func main() {
 func getWalkFunc(basePath string) filepath.WalkFunc {
 	return func(path string, info fs.FileInfo, _ error) error {
 		if !info.IsDir() {
-			if strings.ToLower(filepath.Ext(path)) == ".zbm" {
-				outputName = filepath.Join(basePath, strings.TrimSuffix(path, filepath.Ext(path))+".png")
-				return unpackTexture(filepath.Join(basePath, path), outputName)
+			// check if file is an image
+			// file deepcode ignore PT: This is CLI tool, this is intended to be traversable
+			file, err := os.Open(filepath.Join(basePath, path))
+			if err != nil {
+				return err
+			}
+			_, format, err := image.DecodeConfig(file)
+			if err != nil {
+				return err
+			}
+
+			err = file.Close()
+			if err != nil {
+				return err
+			}
+
+			if err != nil && format != zbm.FormatName {
+				outputName = filepath.Join(basePath, strings.TrimSuffix(path, filepath.Ext(path))+".zbm")
+				return packTexture(filepath.Join(basePath, path), outputName)
 			}
 		}
 		return nil
 	}
 }
 
-func unpackTexture(inputName, outputName string) error {
+func packTexture(inputName, outputName string) error {
 	// file deepcode ignore PT: This is CLI tool, this is intended to be traversable
 	file, err := os.Open(inputName)
 	if err != nil {
 		return fmt.Errorf("couldn't open file %s: %s", inputName, err)
 	}
-
 	config, format, err := image.DecodeConfig(file)
 	if err != nil {
 		return fmt.Errorf("couldn't read image file config %s: %s", inputName, err)
 	}
-	if format != zbm.FormatName {
-		return nil
-	}
 
-	fmt.Printf("Unpacking %s: %dx%d\n", inputName, config.Width, config.Height)
+	fmt.Printf("Packing %s (detected %s): %dx%d\n", inputName, format, config.Width, config.Height)
 
 	_, err = file.Seek(0, 0)
 	if err != nil {
@@ -134,27 +142,15 @@ func unpackTexture(inputName, outputName string) error {
 		return fmt.Errorf("couldn't create output image file %s: %s", outputName, err)
 	}
 
-	ext := filepath.Ext(strings.ToLower(outputName))
-	switch ext {
-	case ".jpg":
-		fallthrough
-	case ".jpeg":
-		o := jpeg.Options{Quality: 90}
-		err = jpeg.Encode(outputFile, img, &o)
-	case ".png":
-		err = png.Encode(outputFile, img)
-	default:
-		err = fmt.Errorf("unknown output format: %s", ext)
-	}
-
+	err = zbm.Encode(outputFile, img)
 	if err != nil {
 		return fmt.Errorf("couldn't pack output image %s: %s", outputName, err)
 	}
 
-	// TODO: won't close file on error in unpacking
 	err = outputFile.Close()
 	if err != nil {
-		return fmt.Errorf("couldn't close image file %s: %s", outputName, err)
+		return fmt.Errorf("couldn't close output image file %s: %s", outputName, err)
 	}
+
 	return nil
 }
