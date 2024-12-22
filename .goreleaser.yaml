@@ -48,12 +48,12 @@ builds:
   #   main: ./cmd/zwf_pack
   #   binary: zbc_pack
   #   id: zbc_pack
-  # - env: *envs
-  #   goos: *gooses
-  #   goarch: *goarchs
-  #   main: ./cmd/zbm_pack
-  #   binary: zbm_pack
-  #   id: zbm_pack
+  - env: *envs
+    goos: *gooses
+    goarch: *goarchs
+    main: ./cmd/zbm_pack
+    binary: zbm_pack
+    id: zbm_pack
   # - env: *envs
   #   goos: *gooses
   #   goarch: *goarchs

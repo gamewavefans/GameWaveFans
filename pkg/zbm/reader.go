@@ -11,22 +11,6 @@ import (
 	"github.com/namgo/GameWaveFans/pkg/common"
 )
 
-type config struct {
-	r            io.Reader
-	unknown1     uint32
-	unknown2     uint32
-	unknown3     uint32
-	unknown4     uint32
-	width        uint32
-	height       uint32
-	unknown5     uint32
-	unknown6     uint32
-	unknown7     uint32
-	sizePacked   uint32
-	sizeUnpacked uint32
-	unknown8     uint32
-}
-
 func getPixelValue(value uint16) (uint8, uint8, uint8, uint8) {
 	// most images store pixels in big endian, 4633
 
@@ -135,6 +119,8 @@ func DecodeConfig(r io.Reader) (image.Config, error) {
 	}, nil
 }
 
-func init() {
+// RegisterFormat registers format to be used by image.DecodeConfig
+// in normal circumstances we'd call image.RegisterFormat in init, but since there's no magic bytes to detect this file format, Go thinks all files are in zbm format
+func RegisterFormat() {
 	image.RegisterFormat(FormatName, textureHeader, Decode, DecodeConfig)
 }

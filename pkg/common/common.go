@@ -21,6 +21,13 @@ func ReadUint32(r io.ReadSeeker, offset int64) (uint32, error) {
 	return headerInt, nil
 }
 
+// WriteUint32 writes a Little Endian number to an io.Writer
+func WriteUint32(w io.Writer, data uint32) (int, error) {
+	buf := make([]byte, 4)
+	binary.LittleEndian.PutUint32(buf, data)
+	return w.Write(buf)
+}
+
 // ReadBytes reads length bytes from a specified location in a stream
 func ReadBytes(r io.ReadSeeker, offset int64, length int) ([]byte, error) {
 	if _, err := r.Seek(offset, 0); err != nil {
