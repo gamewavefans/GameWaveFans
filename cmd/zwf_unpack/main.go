@@ -70,7 +70,7 @@ func main() {
 			}
 			err := unpackSound(inputName, outputName)
 			if err != nil {
-				fmt.Printf("Failed to unpack %s: %s", inputName, err)
+				fmt.Printf("Failed to unpack %s: %s\n", inputName, err)
 				failed = true
 			}
 		}
