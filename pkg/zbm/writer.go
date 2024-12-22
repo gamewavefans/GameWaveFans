@@ -24,9 +24,9 @@ func convertColorToCrCbYA(c color.Color) uint16 {
 
 	y, cb, cr := color.RGBToYCbCr(r8, g8, b8)
 
-	y6 := uint16(math.Round((float64(y) / 255.0) * 63.0))
-	cr3 := uint16(math.Round((float64(cr) / 255.0) * 7.0))
-	cb3 := uint16(math.Round((float64(cb) / 255.0) * 7.0))
+	y6 := uint16(y >> 2)   //uint16(math.Round((float64(y) / 255.0) * 63.0))
+	cr3 := uint16(cr >> 5) //uint16(math.Round((float64(cr) / 255.0) * 7.0))
+	cb3 := uint16(cb >> 5) //uint16(math.Round((float64(cb) / 255.0) * 7.0))
 	a4 := uint16(math.Round((float64(a) / 65536.0) * 15.0))
 
 	col = a4<<12 | y6<<6 | cb3<<3 | cr3
