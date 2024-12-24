@@ -54,12 +54,12 @@ builds:
     main: ./cmd/zbm_pack
     binary: zbm_pack
     id: zbm_pack
-  # - env: *envs
-  #   goos: *gooses
-  #   goarch: *goarchs
-  #   main: ./cmd/zwf_pack
-  #   binary: zwf_pack
-  #   id: zwf_pack
+  - env: *envs
+    goos: *gooses
+    goarch: *goarchs
+    main: ./cmd/zwf_pack
+    binary: zwf_pack
+    id: zwf_pack
 
 archives:
   - format: tar.xz
