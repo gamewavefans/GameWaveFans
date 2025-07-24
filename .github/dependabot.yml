@@ -7,10 +7,10 @@ updates:
     schedule:
       interval: "weekly"
     commit-message:
-      prefix: "gomod"
+      prefix: "chore: gomod"
   - package-ecosystem: "github-actions"
     directory: "/"
     schedule:
       interval: "weekly"
     commit-message:
-      prefix: "actions"
+      prefix: "chore: actions"
