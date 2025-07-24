@@ -23,6 +23,7 @@
 
 # various files
 *.png
+*.jpg
 *.zbm
 *.zwf
 *.zbc
