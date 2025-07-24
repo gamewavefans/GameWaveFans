@@ -21,6 +21,18 @@ func ReadUint32(r io.ReadSeeker, offset int64) (uint32, error) {
 	return headerInt, nil
 }
 
+// ReadUint32Big reads 4 bytes from the input as Big Endian int
+func ReadUint32Big(r io.ReadSeeker, offset int64) (uint32, error) {
+	dataBytes, err := ReadBytes(r, offset, 4)
+	if err != nil {
+		return 0, err
+	}
+
+	headerInt := binary.BigEndian.Uint32(dataBytes)
+
+	return headerInt, nil
+}
+
 // WriteUint32 writes a Little Endian number to an io.Writer
 func WriteUint32(w io.Writer, data uint32) (int, error) {
 	buf := make([]byte, 4)
