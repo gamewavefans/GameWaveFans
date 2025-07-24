@@ -141,7 +141,11 @@ func parseCheese(f *os.File, cheeseIndex int) (Cheese, error) {
 			return nil, err
 		}
 
-		f.Seek(int64(cheeseIndex+int(address)), io.SeekStart)
+		_, err = f.Seek(int64(cheeseIndex+int(address)), io.SeekStart)
+		if err != nil {
+			return nil, err
+		}
+
 		dataBuffer := make([]byte, size)
 		_, err = f.Read(dataBuffer)
 		if err != nil {
