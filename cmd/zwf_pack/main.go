@@ -120,16 +120,16 @@ func packSound(inputName, outputName string) error {
 			bufferFloat := buffer.AsFloat32Buffer()
 			err = transforms.MonoToStereoF32(bufferFloat)
 			if err != nil {
-				return fmt.Errorf("Got mono sound, but couldn't convert to stereo: %s", err)
+				return fmt.Errorf("got mono sound, but couldn't convert to stereo: %s", err)
 			}
 			buffer = bufferFloat.AsIntBuffer()
 		} else {
-			return fmt.Errorf("Expected mono or stereo sound; got %d channels", buffer.Format.NumChannels)
+			return fmt.Errorf("expected mono or stereo sound; got %d channels", buffer.Format.NumChannels)
 		}
 	}
 
 	if buffer.Format.SampleRate != 22050 {
-		return fmt.Errorf("Expected 22050Hz; got %dHz", buffer.Format.SampleRate)
+		return fmt.Errorf("expected 22050Hz; got %dHz", buffer.Format.SampleRate)
 	}
 
 	fmt.Printf("Packing %s\n", inputName)
